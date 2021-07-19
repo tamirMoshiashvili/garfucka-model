@@ -4,10 +4,10 @@ from transformers import BertTokenizerFast, EncoderDecoderModel, Seq2SeqTrainer,
 import os
 
 
-max_length = 512
+max_length = 16
 alephbert_model_name = 'onlplab/alephbert-base'
 tokenizer = BertTokenizerFast.from_pretrained(alephbert_model_name)
-batch_size = 2
+batch_size = 8
 out_dir = 'model'
 rouge = datasets.load_metric("rouge")
 
@@ -47,7 +47,7 @@ def generate_summary(batch):
     input_ids = inputs.input_ids
     attention_mask = inputs.attention_mask
 
-    outputs = bert2bert.generate(input_ids, attention_mask=attention_mask)
+    outputs = model.generate(input_ids, attention_mask=attention_mask)
 
     output_str = tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
@@ -99,6 +99,7 @@ def get_training_args():
         logging_steps=2,
         save_steps=2,
         eval_steps=2,
+
         # logging_steps=1000,
         # save_steps=500,
         # eval_steps=7500,
@@ -133,6 +134,7 @@ def get_trainer(model, train_data, training_args, val_data):
         compute_metrics=compute_metrics,
         train_dataset=train_data,
         eval_dataset=val_data,
+        tokenizer=tokenizer
     )
 
 
@@ -145,7 +147,6 @@ def train():
     # model
     model = EncoderDecoderModel.from_encoder_decoder_pretrained(alephbert_model_name, alephbert_model_name,
                                                                 tie_encoder_decoder=True)
-    model.save_pretrained('model/alephseq2seq')
     # model = EncoderDecoderModel.from_pretrained('model/alephseq2seq')
     config_model(model)
 
@@ -153,7 +154,27 @@ def train():
     training_args = get_training_args()
     trainer = get_trainer(model, train_data, training_args, val_data)
     trainer.train()
+    model.save_pretrained('model/alephseq2seq')
+
+
+def run():
+    model = EncoderDecoderModel.from_pretrained('checkpoint-12')
+    # model = EncoderDecoderModel.from_pretrained('model/alephseq2seq')
+    config_model(model)
+
+    while True:
+        text = input("> ")
+
+        inputs = tokenizer(text, padding="max_length", truncation=True, max_length=max_length, return_tensors="pt")
+        input_ids = inputs.input_ids
+        attention_mask = inputs.attention_mask
+
+        outputs = model.generate(input_ids, attention_mask=attention_mask)
+
+        output_str = tokenizer.batch_decode(outputs, skip_special_tokens=True)
+        print(output_str)
 
 
 if __name__ == '__main__':
-    train()
+    # train()
+    run()
