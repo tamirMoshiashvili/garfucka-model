@@ -1,0 +1,3 @@
+input_text,target_text
+היי,שלום
+איך אתה?,הכל טוב
