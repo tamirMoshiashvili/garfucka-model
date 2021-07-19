@@ -99,7 +99,7 @@ def get_training_args():
         logging_steps=2,
         save_steps=2,
         eval_steps=2,
-
+        num_train_epochs=5
         # logging_steps=1000,
         # save_steps=500,
         # eval_steps=7500,
