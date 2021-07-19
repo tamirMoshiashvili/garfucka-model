@@ -79,10 +79,10 @@ def get_training_args():
         per_device_eval_batch_size=batch_size,
         fp16=False,
         output_dir="./",
-        logging_steps=2,
-        save_steps=250,
-        eval_steps=250,
-        num_train_epochs=5
+        logging_steps=5,
+        save_steps=8,
+        eval_steps=8,
+        num_train_epochs=8
         # logging_steps=1000,
         # save_steps=500,
         # eval_steps=7500,
@@ -123,8 +123,8 @@ def get_trainer(model, train_data, training_args, val_data):
 
 def train():
     # load datasets
-    train_data = datasets.load_dataset('csv', data_files='data/mkqa/he.txt', split='train')
-    val_data = datasets.load_dataset('csv', data_files='data/mkqa/he_val.txt', split='train')
+    train_data = datasets.load_dataset('csv', data_files='data/garfuck/train.txt', split='train')
+    val_data = datasets.load_dataset('csv', data_files='data/garfuck/validation.txt', split='train')
     train_data, val_data = prepare_dataset(train_data), prepare_dataset(val_data)
 
     # model
