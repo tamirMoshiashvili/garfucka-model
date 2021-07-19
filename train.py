@@ -40,22 +40,6 @@ def process_data_to_model_inputs(batch: pd.DataFrame):
     return batch
 
 
-def generate_summary(batch):
-    # cut off at BERT max length 512
-    inputs = tokenizer(batch["input_text"], padding="max_length", truncation=True,
-                       max_length=max_length, return_tensors="pt")
-    input_ids = inputs.input_ids
-    attention_mask = inputs.attention_mask
-
-    outputs = model.generate(input_ids, attention_mask=attention_mask)
-
-    output_str = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-
-    batch["pred_summary"] = output_str
-
-    return batch
-
-
 def prepare_dataset(dataset):
     dataset = dataset.map(
         process_data_to_model_inputs,
