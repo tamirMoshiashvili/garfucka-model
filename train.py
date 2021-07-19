@@ -61,18 +61,17 @@ def config_model(model):
     model.config.pad_token_id = tokenizer.pad_token_id
     model.config.vocab_size = model.config.encoder.vocab_size
 
-    model.config.max_length = 512
+    model.config.max_length = max_length
     model.config.min_length = 1
-    model.config.no_repeat_ngram_size = 3
+    model.config.no_repeat_ngram_size = 2
     model.config.early_stopping = True
-    model.config.length_penalty = 2.0
+    model.config.length_penalty = 4.0
     # model.config.num_beams = 4
 
 
 def get_training_args():
     os.environ['WANDB_DISABLED'] = "true"
 
-    # todo make num epochs = 1
     return Seq2SeqTrainingArguments(
         predict_with_generate=True,
         evaluation_strategy="steps",
@@ -81,8 +80,8 @@ def get_training_args():
         fp16=False,
         output_dir="./",
         logging_steps=2,
-        save_steps=2,
-        eval_steps=2,
+        save_steps=250,
+        eval_steps=250,
         num_train_epochs=5
         # logging_steps=1000,
         # save_steps=500,
@@ -124,8 +123,8 @@ def get_trainer(model, train_data, training_args, val_data):
 
 def train():
     # load datasets
-    train_data = datasets.load_dataset('csv', data_files=dataset_filepath('train'), split='train')
-    val_data = datasets.load_dataset('csv', data_files=dataset_filepath('validation'), split='train')
+    train_data = datasets.load_dataset('csv', data_files='data/mkqa/he.txt', split='train')
+    val_data = datasets.load_dataset('csv', data_files='data/mkqa/he_val.txt', split='train')
     train_data, val_data = prepare_dataset(train_data), prepare_dataset(val_data)
 
     # model
@@ -142,7 +141,7 @@ def train():
 
 
 def run():
-    model = EncoderDecoderModel.from_pretrained('checkpoint-12')
+    model = EncoderDecoderModel.from_pretrained('model/alephseq2seq')
     # model = EncoderDecoderModel.from_pretrained('model/alephseq2seq')
     config_model(model)
 
